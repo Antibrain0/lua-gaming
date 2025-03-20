@@ -1,5 +1,5 @@
 local __sys={cmd='',cursor={1,1},color={0,0,0},done_draw=false,framerate=10} --system state
-__sys.canvas_w,__sys.canvas_h=64,64 --canvas size
+__sys.canvas_w,__sys.canvas_h=65,65 --canvas size
 __sys.imgtbl={} --image local
 function arr2d(w,h,s)
     local build={}
@@ -15,26 +15,71 @@ end
 __sys.imgtbl=arr2d(__sys.canvas_w,__sys.canvas_h,"000 000 000")
 
 __sys.framerate=30 --idk random number (works good actually no way)
-t={x=32,y=32}
+game={}
+game.ball={x=33,y=32,w=1,h=1,spd={x=0,y=1}}
+game.paddle={x=27,y=60,w=12,h=2}
+game.bricks={}
+game.level=1
+game.score=0
+for yy=1,game.level+1 do for xx=1,8 do
+    table.insert(game.bricks,{y=4*yy+4,x=xx*8-6,w=6,h=2,c={255,0,0}})
+end end
 function _mainloop() --run 10 times every second (10fps)
     cls() --clear screen
-    io.write(__sys.cmd and __sys.cmd..'\n' or '')
-    --just some graphics api testing
-    rectfill(48,38,27,52,col(255,0,255))
+    rectfill(game.paddle.x,game.paddle.y,game.paddle.x+game.paddle.w,game.paddle.y+game.paddle.h,col(255,255,255))
+    set_px(game.ball.x,game.ball.y,col(255,255,255))
+    game.ball.x=game.ball.x+game.ball.spd.x
+    game.ball.y=game.ball.y+game.ball.spd.y
+    if game.ball.x>=game.paddle.x and game.ball.y>game.paddle.y and game.ball.x<=game.paddle.x+game.paddle.w and game.ball.y<=game.paddle.y+game.paddle.h or game.ball.y<=0 then
+        game.ball.spd.y=game.ball.spd.y*-1.05
+        local pm=game.paddle.x+game.paddle.w/2
+        local bm=game.ball.x+.5
+        game.ball.spd.x=game.ball.spd.x+(-(pm-bm)/20)
+    end
+    if game.ball.x>=__sys.canvas_w or game.ball.x<=1 then
+        game.ball.spd.x=-game.ball.spd.x
+    end
+    if btn'a' then
+        game.paddle.x=game.paddle.x-4
+    end
+    if btn'd' then
+        game.paddle.x=game.paddle.x+4
+    end
+    game.paddle.x=math.max(1,math.min(game.paddle.x,__sys.canvas_w-game.paddle.w))
+    for i=1,#game.bricks do
+        local b=game.bricks[i]
+        rect(b.x,b.y,b.x+b.w,b.y+b.h,b.c)
+        if game.ball.x>=b.x and game.ball.x<=b.x+b.w and game.ball.y>=b.y and game.ball.y<=b.y+b.h then
+            game.ball.spd.y=game.ball.spd.y*-1.05
+            local pm=b.x+b.w/2
+            local bm=game.ball.x+.5
+            game.ball.spd.x=game.ball.spd.x+(-(pm-bm)/20)
+            table.remove(game.bricks,i)
+            game.score=game.score+1
+            io.write("Score: "..game.score.."\n")
+            break
+        end
+    end
+    game.ball.spd.y=math.min(game.ball.spd.y,1.5)
+    game.ball.spd.x=math.max(-1.5,math.min(game.ball.spd.x,1.5))
+    game.ball.x=math.max(0,math.min(game.ball.x,__sys.canvas_w))
+    game.ball.y=math.max(1,game.ball.y)
 
-    line(xxx,4,xxx,12,col(255,255,255))
-    line(xxx+4,4)
-    line(xxx,4)
-    line(32,32)
-    set_px(16,16,col(255,255,0))
-    xxx=xxx+(1/10)
-    rect(t.x,t.y,t.x+3,t.y+3,col(255,255,255))
-    t.x=t.x+(btn'd' and 1 or btn'a' and -1 or 0)
-    t.y=t.y+(btn'w' and -1 or btn's' and 1 or 0)
-    set_px(42+math.sin(__sys.time/16)*8,32+math.cos(__sys.time/16)*8,col(0,0,255))
-    rect(20,20,40,40,col(50,126,100))
-    xxx=xxx%__sys.canvas_w
-    if xxx<=0 then xxx=xxx+1 end
+    if #game.bricks==0 then
+        game.level=game.level+1
+        game.ball={x=33,y=32,w=1,h=1,spd={x=0,y=1}}
+        game.paddle={x=27,y=60,w=12,h=2}
+        game.bricks={}
+        for yy=1,game.level+1 do for xx=1,8 do
+            table.insert(game.bricks,{y=4*yy+4,x=xx*8-6,w=6,h=2,c={255,0,0}})
+        end end        
+        io.write("Level up! Level: "..game.level.."\n")
+    end
+    if game.ball.y>__sys.canvas_h+6 then
+        io.write("You lose! Wow you suck at this.\n")
+        io.write("Score: "..game.score..'\n')
+        os.exit()
+    end
 end
 
 function rectfill(x1,y1,x2,y2,c) --filled rectangle
@@ -43,6 +88,7 @@ function rectfill(x1,y1,x2,y2,c) --filled rectangle
     for x = xmin, xmax do
         line(x, ymin, x, ymax, c)
     end
+    
 end
 
 function rect(x1,y1,x2,y2,c) --simple rectangle
@@ -131,7 +177,7 @@ function output() --output canvas to pbm file for viewing
 end
 
 function log_command(str)
-    io.write('Recieved command!! ['..str..']\n')
+    --io.write('Recieved command!! ['..str..']\n')
 end
 
 function btn(s)
