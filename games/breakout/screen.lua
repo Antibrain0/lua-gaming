@@ -1,12 +1,18 @@
 local __sys={cmd='',cursor={1,1},color={0,0,0},done_draw=false,framerate=10} --system state
 __sys.canvas_w,__sys.canvas_h=64,64 --canvas size
 __sys.imgtbl={} --image local
-for y=1,__sys.canvas_w do --build local canvas image
-    __sys.imgtbl[y]={}
-    for x=1,__sys.canvas_h do
-        __sys.imgtbl[y][x]="000 000 000"
+function arr2d(w,h,s)
+    local build={}
+    for y=1,h do
+        build[y]={}
+        for x=1,w do
+            build[y][x]=s
+        end
     end
+    return build
 end
+
+__sys.imgtbl=arr2d(__sys.canvas_w,__sys.canvas_h,"000 000 000")
 
 __sys.framerate=30 --idk random number (works good actually no way)
 t={x=32,y=32}
@@ -123,14 +129,6 @@ function output() --output canvas to pbm file for viewing
         __sys.image:write(__sys.imgtbl[y][x]..'\n')
     end end
 end
-
-function table.shallow_copy(t) --shallow copy table
-    local t2 = {}
-    for k,v in pairs(t) do
-      t2[k] = v
-    end
-    return t2
-  end
 
 function log_command(str)
     io.write('Recieved command!! ['..str..']\n')
