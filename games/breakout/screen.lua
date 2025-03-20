@@ -1,40 +1,34 @@
 local __sys={cmd='',cursor={1,1},color={0,0,0},done_draw=false,framerate=10} --system state
-__sys.canvas_w,__sys.canvas_h=32,32 --canvas size
+__sys.canvas_w,__sys.canvas_h=64,64 --canvas size
 __sys.imgtbl={} --image local
-
-function arr2d(w,h,s)
-    local build={}
-    for y=1,h do
-        build[y]={}
-        for x=1,w do
-            build[y][x]=s
-        end
+for y=1,__sys.canvas_w do --build local canvas image
+    __sys.imgtbl[y]={}
+    for x=1,__sys.canvas_h do
+        __sys.imgtbl[y][x]="000 000 000"
     end
-    return build
 end
 
-__sys.imgtbl=arr2d(__sys.canvas_w,__sys.canvas_h,"000 000 000")
 __sys.framerate=30 --idk random number (works good actually no way)
-
-game={}
-game.bank={
-    [[1]]
-}
-game.current=nil
-game.inplay=false
-game.playfield=arr2d(10,24,false)
+t={x=32,y=32}
 function _mainloop() --run 10 times every second (10fps)
     cls() --clear screen
-    for j=1,10 do for i=1,24 do
-        set_px(j+10,6+i,col(game.playfield[i][j] and 255 or 128,game.playfield[i][j] and 255 or 128,game.playfield[i][j] and 255 or 128))
-    end end
-    if game.inplay==false then
-        game.inplay=true
-        game.current=game.bank[math.random(#game.bank)]
-    end
-    if game.current~=nil then
-        
-    end
+    io.write(__sys.cmd and __sys.cmd..'\n' or '')
+    --just some graphics api testing
+    rectfill(48,38,27,52,col(255,0,255))
+
+    line(xxx,4,xxx,12,col(255,255,255))
+    line(xxx+4,4)
+    line(xxx,4)
+    line(32,32)
+    set_px(16,16,col(255,255,0))
+    xxx=xxx+(1/10)
+    rect(t.x,t.y,t.x+3,t.y+3,col(255,255,255))
+    t.x=t.x+(btn'd' and 1 or btn'a' and -1 or 0)
+    t.y=t.y+(btn'w' and -1 or btn's' and 1 or 0)
+    set_px(42+math.sin(__sys.time/16)*8,32+math.cos(__sys.time/16)*8,col(0,0,255))
+    rect(20,20,40,40,col(50,126,100))
+    xxx=xxx%__sys.canvas_w
+    if xxx<=0 then xxx=xxx+1 end
 end
 
 function rectfill(x1,y1,x2,y2,c) --filled rectangle
@@ -130,6 +124,13 @@ function output() --output canvas to pbm file for viewing
     end end
 end
 
+function table.shallow_copy(t) --shallow copy table
+    local t2 = {}
+    for k,v in pairs(t) do
+      t2[k] = v
+    end
+    return t2
+  end
 
 function log_command(str)
     io.write('Recieved command!! ['..str..']\n')
