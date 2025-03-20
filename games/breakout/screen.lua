@@ -13,11 +13,11 @@ function arr2d(w,h,s)
 end
 
 __sys.imgtbl=arr2d(__sys.canvas_w,__sys.canvas_h,"000 000 000")
-io.write"Welcome to shitty lua breakout!"
-io.write"Made by anti using only base lua - no modules or libraries besides builtin."
-io.write"Make sure youve opened both 'canvas.pbm' and 'input.txt'"
-io.write"With autosave set to 0ms, and auto update set to instant."
-io.write"A/D to move paddle."
+io.write"Welcome to shitty lua breakout!\n"
+io.write"Made by anti using only base lua - no modules or libraries besides builtin.\n"
+io.write"Make sure youve opened both 'canvas.pbm' and 'input.txt'\n"
+io.write"With autosave set to 0ms, and auto update set to instant.\n"
+io.write"A/D to move paddle.\n"
 __sys.framerate=30 --idk random number (works good actually no way)
 game={}
 game.ball={x=33,y=32,w=1,h=1,spd={x=0,y=1}}
