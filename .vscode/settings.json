@@ -1,0 +1,11 @@
+{
+    "IDX.aI.enableInlineCompletion": false,
+    "IDX.aI.enableCodebaseIndexing": true,
+    "Lua.diagnostics.globals": [
+        "cls"
+    ],
+    "Lua.diagnostics.disable": [
+        "lowercase-global",
+        "discard-returns"
+    ]
+}
